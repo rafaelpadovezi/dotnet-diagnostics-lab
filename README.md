@@ -1,32 +1,12 @@
-# ThreadPool starvation diagnostic sample
+# .NET diagnostics lab
 
-Aspnet app sample to detect threadpool starvation using:
+Aspnet app with diagnostics samples using:
 - [`dotnet-counters`](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters)
 - [`dotnet-stack`](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-stack)
 - [`hey`](https://github.com/rakyll/hey)
 - [`dotnet-monitor`](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-monitor)
 - [`prometheus`](https://prometheus.io/)
 - [`grafana`](https://grafana.com/docs/grafana/latest/)
-
-## Step by step - dotnet-counters
-
-Run the app using docker
-
-```
-docker compose up app
-```
-
-Monitor the application using dotnet-counters
-
-```
-docker exec -it thread-pool-test-app dotnet-counters monitor -n dotnet
-```
-
-To get the `dotnet-stack` run the following
-
-```
-docker exec -it thread-pool-test-app dotnet-stack report -n dotnet
-```
 
 ## Step by step - dotnet-monitor + prometheus + grafana
 
