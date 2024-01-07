@@ -15,7 +15,7 @@ services:
       start_period: 10s
 
   seed:
-    image: mcr.microsoft.com/dotnet/sdk:6.0
+    image: mcr.microsoft.com/dotnet/sdk:8.0
     env_file: .env
     depends_on:
       sqlserver:
@@ -28,7 +28,6 @@ services:
     ]
 
   app:
-    container_name: thread-pool-test-app
     build:
       context: .
       dockerfile: Dockerfile
@@ -42,7 +41,7 @@ services:
       - "8080:8080"
     volumes:
       - "./:/app/"
-    entrypoint: [ "dotnet", "/app/src/bin/Debug/net6.0/AspnetTemplate.dll" ]
+    entrypoint: [ "dotnet", "/app/src/bin/Debug/net8.0/AspnetTemplate.dll" ]
     healthcheck:
       test: curl http://localhost:8080/health
       interval: 10s
@@ -50,14 +49,15 @@ services:
       retries: 10
       start_period: 10s
   monitor:
-    image: mcr.microsoft.com/dotnet/monitor:6
+    user: root
+    image: mcr.microsoft.com/dotnet/monitor:8
     environment:
       DOTNETMONITOR_Storage__DefaultSharedPath: /diag
       DOTNETMONITOR_Metrics__Endpoints: http://+:52325
       DOTNETMONITOR_Urls: http://+:52323
       DOTNETMONITOR_DiagnosticPort__ConnectionMode: listen
       DOTNETMONITOR_DiagnosticPort__EndpointName: /diag/dotnet-monitor.sock
-    command: ["--no-auth"]
+    command: [ "collect", "--no-auth" ]
     volumes:
       - "./diag:/diag"
     ports:
