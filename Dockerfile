@@ -1,11 +1,16 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /app
 
-COPY . .
+# Copy everything
+COPY . ./
+# Restore as distinct layers
+RUN dotnet restore
+# Build and publish a release
+RUN dotnet publish -c Release -o out
 
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 RUN apt-get update && apt-get -y install curl
-RUN dotnet tool install --global dotnet-stack && dotnet tool install --global dotnet-counters
-
-ENV PATH="${PATH}:/root/.dotnet/tools"
-
-RUN dotnet build
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT ["dotnet", "AspnetTemplate.dll"]

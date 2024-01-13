@@ -33,15 +33,16 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     environment:
-      DOTNET_DiagnosticPorts: /app/diag/dotnet-monitor.sock
+      DOTNET_DiagnosticPorts: /diag/dotnet-monitor.sock
     depends_on:
-      - seed
-      - monitor
+      seed:
+        condition: service_completed_successfully
+      monitor:
+        condition: service_started
     ports:
       - "8080:8080"
     volumes:
-      - "./:/app/"
-    entrypoint: [ "dotnet", "/app/src/bin/Debug/net8.0/AspnetTemplate.dll" ]
+      - "./diag:/diag"
     healthcheck:
       test: curl http://localhost:8080/health
       interval: 10s
@@ -63,33 +64,6 @@ services:
     ports:
       - "52323:52323"
       - "52325:52325"
-    
-  send-load-sync:
-    # https://github.com/rakyll/hey
-    image: williamyeh/hey
-    volumes:
-      - .:/app
-    command: [ "-z", "2m", "-c", "100", "http://app:8080/v1/diagnostics/sync"  ]
-    depends_on:
-      app:
-        condition: service_healthy
-      grafana:
-        condition: service_healthy
-
-  send-load-async:
-    extends:
-      service: send-load-sync
-    command: [ "-z", "2m", "-c", "100", "http://app:8080/v1/diagnostics/async"  ]
-    
-  send-load-enumeration:
-    extends:
-      service: send-load-sync
-    command: [ "-n", "200", "-c", "10", "http://app:8080/v1/diagnostics/enumeration?multiple=false" ]
-  
-  send-load-multiple-enumeration:
-    extends:
-      service: send-load-sync
-    command: [ "-n", "200", "-c", "10", "http://app:8080/v1/diagnostics/enumeration?multiple=true" ]
 
   prometheus:
     image: prom/prometheus

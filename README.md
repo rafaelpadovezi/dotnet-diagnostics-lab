@@ -31,14 +31,34 @@ The compose provisions grafana with prometheus datasource and the community prov
 
 ## Load tests
 
-Start the load test that hits the sync endpoint
+Run the load test:
 
-```
-docker compose up send-load-sync
+```sh
+docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-sync
+docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-sync
+docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-enumeration
+docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-multiple-enumeration
 ```
 
-Start the load test that hits the async endpoint
+## Egress configuration
 
+dotnet-monitor allows setting the egress to export artifacts like dumps. By default it's used the filesystem.
+
+Configuration to use AWS S3
+
+```yml
+DOTNETMONITOR_Egress__S3Storage__monitorS3Blob__bucketName: bucketname
+DOTNETMONITOR_Egress__S3Storage__monitorS3Blob__accessKeyId: accesskeyid
+DOTNETMONITOR_Egress__S3Storage__monitorS3Blob__secretAccessKey: secretaccesskey
+DOTNETMONITOR_Egress__S3Storage__monitorS3Blob__regionName: us-east-1
 ```
-docker compose up send-load-async
+
+And the parameter `egressProvider` should be `monitorS3Blob`.
+
+```sh
+curl -X 'GET' \
+  'http://localhost:52323/dump?egressProvider=monitorS3Blob' \
+  -H 'accept: application/octet-stream'
 ```
+
+[Docs](https://github.com/dotnet/dotnet-monitor/blob/407ddc545b08fce1eb245c8c16ca46316fb8af78/documentation/configuration/egress-configuration.md)

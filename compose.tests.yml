@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  send-load-sync:
+    # https://github.com/rakyll/hey
+    image: williamyeh/hey
+    volumes:
+      - .:/app
+    command: [ "-z", "2m", "-c", "100", "http://app:8080/v1/diagnostics/sync"  ]
+    depends_on:
+      app:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+
+  send-load-async:
+    extends:
+      service: send-load-sync
+    command: [ "-z", "2m", "-c", "100", "http://app:8080/v1/diagnostics/async"  ]
+    
+  send-load-enumeration:
+    extends:
+      service: send-load-sync
+    command: [ "-n", "200", "-c", "10", "http://app:8080/v1/diagnostics/enumeration?multiple=false" ]
+  
+  send-load-multiple-enumeration:
+    extends:
+      service: send-load-sync
+    command: [ "-n", "200", "-c", "10", "http://app:8080/v1/diagnostics/enumeration?multiple=true" ]
