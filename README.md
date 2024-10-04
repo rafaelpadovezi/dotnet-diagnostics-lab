@@ -35,7 +35,7 @@ Run the load test:
 
 ```sh
 docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-sync
-docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-sync
+docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-async
 docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-enumeration
 docker compose -f docker-compose.yml -f compose.tests.yml run --rm send-load-multiple-enumeration
 ```
